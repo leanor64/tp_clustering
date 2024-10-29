@@ -59,9 +59,31 @@ print("------------------------------------------------------")
 print("Appel DBSCAN (1) ... ")
 tps1 = time.time()
 min_pts=5 
-#table_sil = []
+table_sil = []
 
-epsilon = 0.020
+#-------------------Pour déterminer la meilleure valeur de epsilon----------
+
+trange = [0.006,0.008,0.010,0.012,0.014,0.016,0.018,0.020,0.022,0.024]
+for epsilon in trange:
+    model = cluster.DBSCAN(eps=epsilon, min_samples=min_pts)
+    model.fit(datanp)
+    tps2 = time.time()
+    labels = model.labels_
+    sil = metrics.silhouette_score(datanp, labels)
+    table_sil.append(sil)
+
+result = trange[np.argmax(table_sil)]
+plt.plot(trange, table_sil, color="red", marker="o")
+plt.xlabel("epsilon")
+plt.ylabel("Coefficient de silhouette")
+plt.xticks(trange)
+plt.suptitle(f"{name} - Coefficient de silhouette en fonction de epsilon")
+plt.title(f"Meilleur epsilon : {result}")
+plt.show()
+
+#------Pour epsilon = 0.014
+
+epsilon = 0.014
 model = cluster.DBSCAN(eps=epsilon, min_samples=min_pts)
 model.fit(datanp)
 tps2 = time.time()
@@ -70,12 +92,16 @@ labels = model.labels_
 #Number of clusters in labels, ignoring noise if present.
 n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 n_noise = list(labels).count(-1)
+print('----------------------------------------------------')
+print(f'for epsilon = {epsilon} ')
 print('Number of clusters: %d' % n_clusters)
 print('Number of noise points: %d' % n_noise)
 
 plt.scatter(f0, f1, c=labels, s=8)
 plt.title("Données après clustering DBSCAN (1) - Epsilon= "+str(epsilon)+" MinPts= "+str(min_pts))
 plt.show()
+
+# --------Pour epsilon = 0.016
 
 epsilon = 0.016
 model = cluster.DBSCAN(eps=epsilon, min_samples=min_pts)
@@ -86,6 +112,8 @@ labels = model.labels_
 #Number of clusters in labels, ignoring noise if present.
 n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 n_noise = list(labels).count(-1)
+print('----------------------------------------------------')
+print(f'for epsilon = {epsilon} ')
 print('Number of clusters: %d' % n_clusters)
 print('Number of noise points: %d' % n_noise)
 
@@ -93,62 +121,24 @@ plt.scatter(f0, f1, c=labels, s=8)
 plt.title("Données après clustering DBSCAN (1) - Epsilon= "+str(epsilon)+" MinPts= "+str(min_pts))
 plt.show()
 
-# trange = [0.006,0.008,0.010,0.012,0.014,0.016,0.018,0.020,0.022,0.024]
-# for epsilon in trange:
-#     model = cluster.DBSCAN(eps=epsilon, min_samples=min_pts)
-#     model.fit(datanp)
-#     tps2 = time.time()
-#     labels = model.labels_
-#     sil = metrics.silhouette_score(datanp, labels)
-#     table_sil.append(sil)
 
-# result = trange[np.argmax(table_sil)]
-# plt.plot(trange, table_sil, color="red", marker="o")
-# plt.xlabel("epsilon")
-# plt.ylabel("Coefficient de silhouette")
-# plt.xticks(trange)
-# plt.suptitle(f"{name} - Coefficient de silhouette en fonction de epsilon")
-# plt.title(f"Meilleur epsilon : {result}")
-# plt.show()
+#------Pour epsilon = 0.020
 
-
-
-
-####################################################
-# Standardisation des donnees
-
-scaler = preprocessing.StandardScaler().fit(datanp)
-data_scaled = scaler.transform(datanp)
-print("Affichage données standardisées            ")
-f0_scaled = data_scaled[:,0] # tous les élements de la première colonne
-f1_scaled = data_scaled[:,1] # tous les éléments de la deuxième colonne
-
-#plt.figure(figsize=(10, 10))
-plt.scatter(f0_scaled, f1_scaled, s=8)
-plt.title("Donnees standardisées")
-plt.show()
-
-
-print("------------------------------------------------------")
-print("Appel DBSCAN (2) sur données standardisees ... ")
-tps1 = time.time()
-epsilon=0.05 #0.05
-min_pts=5 # 10
+epsilon = 0.020
 model = cluster.DBSCAN(eps=epsilon, min_samples=min_pts)
-model.fit(data_scaled)
-
+model.fit(datanp)
 tps2 = time.time()
 labels = model.labels_
-# Number of clusters in labels, ignoring noise if present.
+
+#Number of clusters in labels, ignoring noise if present.
 n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 n_noise = list(labels).count(-1)
+print('----------------------------------------------------')
+print(f'for epsilon = {epsilon} ')
 print('Number of clusters: %d' % n_clusters)
 print('Number of noise points: %d' % n_noise)
 
-plt.scatter(f0_scaled, f1_scaled, c=labels, s=8)
-plt.title("Données après clustering DBSCAN (2) - Epislon= "+str(epsilon)+" MinPts= "+str(min_pts))
+plt.scatter(f0, f1, c=labels, s=8)
+plt.title("Données après clustering DBSCAN (1) - Epsilon= "+str(epsilon)+" MinPts= "+str(min_pts))
 plt.show()
-
-
-
 
